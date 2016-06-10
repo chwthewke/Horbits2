@@ -1,0 +1,7 @@
+stack setup
+
+stack exec -- pacman -Sy mingw-w64-x86_64-gtk3 mingw-w64-x86_64-pkg-config
+
+stack install gtk2hs-buildtools # did a global install, not sure this is ok, maybe stack _build_ instead
+
+stack build
