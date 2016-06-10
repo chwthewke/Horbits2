@@ -1,6 +1,6 @@
 module Lib
-    ( someFunc
+    ( mainWindowTitle
     ) where
 
-someFunc :: IO ()
-someFunc = putStrLn "someFunc"
+mainWindowTitle :: String
+mainWindowTitle = "Horbits"
