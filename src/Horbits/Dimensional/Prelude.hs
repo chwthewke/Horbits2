@@ -1,19 +1,22 @@
+{-# LANGUAGE DataKinds #-}
 {-# LANGUAGE NoImplicitPrelude #-}
 {-# LANGUAGE Rank2Types #-}
 {-# LANGUAGE TypeOperators #-}
+{-# LANGUAGE FlexibleInstances #-}
 
 module Horbits.Dimensional.Prelude(zero, (^*~), unQuantity) where
 
 import Control.Lens
-import Linear(Additive, R1, R2, R3, V1, V2)
+import Linear(Additive, Epsilon, Metric, R1, R2, R3, V1, V2, V3)
 import Numeric.Units.Dimensional (Dimensionless, Quantity, Unit)
 import Numeric.Units.Dimensional.Coercion (Dimensional(Quantity))
-import Prelude (Fractional, Functor, Num, Real, RealFloat, flip, fmap, ($), (.))
+import Prelude (Bool, Fractional, Functor, Num, Real, RealFloat, flip, fmap, ($), (.))
 
 import qualified Data.Fixed (mod')
 import qualified Linear as L
 import qualified Numeric.Units.Dimensional as D
 import qualified Numeric.Units.Dimensional.Coercion as D
+import qualified Numeric.NumType.DK.Integers as D (TypeInt(Pos2))
 import qualified Prelude as P
 
 infixl 6 ^+^, ^-^
@@ -22,13 +25,16 @@ infixl 7 ^*~, ^*, *^, ^/
 unQuantity :: Quantity d a -> a
 unQuantity = D.coerce
 
-liftQ :: (a -> a) -> Quantity d1 a -> Quantity d2 a
+liftQ :: (a -> b) -> Quantity d1 a -> Quantity d2 b
 liftQ = D.coerce
 
-liftQ2 :: (a -> a -> a) -> Quantity d1 a -> Quantity d2 a -> Quantity d3 a
+liftQ2 :: (a -> b -> c) -> Quantity d1 a -> Quantity d2 b -> Quantity d3 c
 liftQ2 = D.coerce
 
-isoDim :: Iso' (Quantity d a) a
+liftQ3 :: (a -> b -> c -> d) -> Quantity d1 a -> Quantity d2 b -> Quantity d3 c -> Quantity d4 d
+liftQ3 = D.coerce
+
+isoDim :: Iso (Quantity d a) (Quantity d b) a b
 isoDim = iso unQuantity Quantity
 
 -- Extra numeric operators
@@ -61,13 +67,13 @@ v ^*~ u = Quantity $ fmap (s P.*) v
 
 -- TODO here: use the lawless Functor instance instead?
 (^*) :: (Num a, Functor f) => Quantity d (f a) -> Quantity d' a -> Quantity (d D.* d') (f a)
-(^*) v a = liftQ (L.^* (unQuantity a)) v
+(^*) = liftQ2 (L.^*)
 
 (*^) :: (Num a, Functor f) => Quantity d a -> Quantity d' (f a) -> Quantity (d D.* d') (f a)
-(*^) a = liftQ ((unQuantity a) L.*^)
+(*^) = liftQ2 (L.*^)
 
 (^/) :: (Fractional a, Functor f) => Quantity d (f a) -> Quantity d' a -> Quantity (d D./ d') (f a)
-(^/) v a = liftQ (L.^/ (unQuantity a)) v
+(^/) = liftQ2 (L.^/)
 
 -- Vector lenses
 
@@ -103,9 +109,24 @@ _zy =  quantityLens L._zy
 
 -- Vector constructors
 
-v2 :: Quantity d a -> Quantity d a -> Quantity d a
-v2 = P.undefined
+v2 :: Quantity d a -> Quantity d a -> Quantity d (V2 a)
+v2 = liftQ2 L.V2
 
-v3 :: Quantity d a -> Quantity d a -> Quantity d a -> Quantity d a
-v3 = P.undefined
+v3 :: Quantity d a -> Quantity d a -> Quantity d a -> Quantity d (V3 a)
+v3 = liftQ3 L.V3
 
+-- Epsilon
+
+nearZero :: Epsilon a => Dimensionless a -> Bool
+nearZero = L.nearZero . unQuantity
+
+nearZeroOf :: (Epsilon a, Fractional a) => Quantity d a -> Quantity d a -> Bool
+nearZeroOf u q = nearZero $ q D./ u
+
+-- Vector operations
+
+dot :: (Metric f, Num a) => Quantity d (f a) -> Quantity d' (f a) -> Quantity (d D.* d') a
+dot = liftQ2 L.dot
+
+qd :: (Metric f, Num a) => Quantity d (f a) -> Quantity d (f a) -> Quantity (d D.^ 'D.Pos2) a
+qd = liftQ2 L.qd
