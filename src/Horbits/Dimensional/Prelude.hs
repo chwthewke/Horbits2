@@ -4,38 +4,34 @@
 {-# LANGUAGE TypeOperators #-}
 {-# LANGUAGE FlexibleInstances #-}
 
-module Horbits.Dimensional.Prelude(zero, (^*~), unQuantity) where
+module Horbits.Dimensional.Prelude(module Horbits.Dimensional.Prelude, module X) where
 
-import Control.Lens
-import Linear(Additive, Epsilon, Metric, R1, R2, R3, V1, V2, V3)
-import Numeric.Units.Dimensional (Dimensionless, Quantity, Unit)
-import Numeric.Units.Dimensional.Coercion (Dimensional(Quantity))
-import Prelude (Bool, Fractional, Functor, Num, Real, RealFloat, flip, fmap, ($), (.))
+import           Control.Lens
+import qualified Data.Fixed                              (mod')
+import           Linear                                  (Additive, Conjugate, Epsilon, Metric, Quaternion, R1, R2,
+                                                         R3, V1, V2, V3)
+import qualified Linear                             as L
+import qualified Numeric.NumType.DK.Integers        as D (TypeInt(Pos2))
+import           Numeric.Units.Dimensional               (Dimensionless, Quantity, Unit)
+import qualified Numeric.Units.Dimensional          as D
+import           Prelude                                 (Bool, Floating, Fractional, Functor, Num, Real, RealFloat,
+                                                         flip, fmap, ($), (.))
+import qualified Prelude                            as P
 
-import qualified Data.Fixed (mod')
-import qualified Linear as L
-import qualified Numeric.Units.Dimensional as D
-import qualified Numeric.Units.Dimensional.Coercion as D
-import qualified Numeric.NumType.DK.Integers as D (TypeInt(Pos2))
-import qualified Prelude as P
+import           Linear                             as X hiding (axisAngle, cross, distance, dot, nearZero, norm,
+                                                         normalize, project, qd, quadrance, rotate, signorm, zero,
+                                                         (*^), (^*), (^+^), (^-^), (^/), _x, _xy, _xz, _y, _yx, _yz,
+                                                         _z, _zx, _zy)
+import           Numeric.Units.Dimensional.Prelude  as X hiding (atan2, mod, subtract, zero, (^/))
+import           Prelude                            as X hiding (abs, acos, acosh, asin, asinh, atan, atan2, atanh,
+                                                         cos, cosh, exp, log, mod, negate, pi, sin, sinh, sqrt,
+                                                         subtract, sum, tan, tanh, (*), (**), (+), (-), (/), (^))
+
+import           Horbits.Dimensional.Internal
 
 infixl 6 ^+^, ^-^
 infixl 7 ^*~, ^*, *^, ^/
 
-unQuantity :: Quantity d a -> a
-unQuantity = D.coerce
-
-liftQ :: (a -> b) -> Quantity d1 a -> Quantity d2 b
-liftQ = D.coerce
-
-liftQ2 :: (a -> b -> c) -> Quantity d1 a -> Quantity d2 b -> Quantity d3 c
-liftQ2 = D.coerce
-
-liftQ3 :: (a -> b -> c -> d) -> Quantity d1 a -> Quantity d2 b -> Quantity d3 c -> Quantity d4 d
-liftQ3 = D.coerce
-
-isoDim :: Iso (Quantity d a) (Quantity d b) a b
-isoDim = iso unQuantity Quantity
 
 -- Extra numeric operators
 
@@ -53,10 +49,10 @@ atan2' = liftQ2 atan2'
 -- Vector operators
 
 zero :: (Additive f, Num a) => Quantity d (f a)
-zero = Quantity L.zero
+zero = quantity L.zero
 
 (^*~) :: (Functor f, Num a) => f a -> Unit m d a -> Quantity d (f a)
-v ^*~ u = Quantity $ fmap (s P.*) v
+v ^*~ u = quantity $ fmap (s P.*) v
   where s = unQuantity $ 1 D.*~ u
 
 (^+^) :: (L.Additive f, Num a) => Quantity d (f a) -> Quantity d (f a) -> Quantity d (f a)
@@ -128,5 +124,43 @@ nearZeroOf u q = nearZero $ q D./ u
 dot :: (Metric f, Num a) => Quantity d (f a) -> Quantity d' (f a) -> Quantity (d D.* d') a
 dot = liftQ2 L.dot
 
+cross :: (Num a) => Quantity d (V3 a) -> Quantity d' (V3 a) -> Quantity (d D.* d') (V3 a)
+cross = liftQ2 L.cross
+
 qd :: (Metric f, Num a) => Quantity d (f a) -> Quantity d (f a) -> Quantity (d D.^ 'D.Pos2) a
 qd = liftQ2 L.qd
+
+quadrance :: (Metric f, Num a) => Quantity d (f a) -> Quantity (d D.^ 'D.Pos2) a
+quadrance = liftQ L.quadrance
+
+distance :: (Metric f, Floating a) => Quantity d (f a) -> Quantity d (f a) -> Quantity d a
+distance = liftQ2 L.distance
+
+norm :: (Metric f, Floating a) => Quantity d (f a) -> Quantity d a
+norm = liftQ L.norm
+
+signorm :: (Metric f, Floating a) => Quantity d (f a) -> Dimensionless (f a)
+signorm = liftQ L.signorm
+
+normalize :: (Metric f, Floating a, Epsilon a) => Quantity d (f a) -> Dimensionless (f a)
+normalize = liftQ L.normalize
+
+project :: (Metric f, Fractional a) => Quantity d (f a) -> Quantity d (f a) -> Quantity d (f a)
+project = liftQ2 L.project
+
+-- Quaternion
+
+type Rotation a = Dimensionless (Quaternion a)
+
+rotate :: (Conjugate a, RealFloat a) =>
+          Rotation a -> Quantity d (V3 a) -> Quantity d (V3 a)
+rotate = liftQ2 L.rotate
+
+axisAngle :: (Floating a, Epsilon a) => Quantity d (V3 a) -> Dimensionless a -> Rotation a
+axisAngle = liftQ2 L.axisAngle
+
+rotX :: (Floating a, Epsilon a) => Dimensionless a -> Rotation a
+rotX = axisAngle $ v3 D._1 D._0 D._0
+
+rotZ :: (Floating a, Epsilon a) => Dimensionless a -> Rotation a
+rotZ = axisAngle $ v3 D._0 D._0 D._1

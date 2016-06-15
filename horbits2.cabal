@@ -17,6 +17,7 @@ library
   hs-source-dirs:      src
   exposed-modules:     Lib
                      , Horbits.Dimensional.Prelude
+  other-modules:       Horbits.Dimensional.Internal
   build-depends:       base >= 4.7 && < 5
                      , dimensional >= 1.0.1.2
                      , gtk3 >= 0.14.5
