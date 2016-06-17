@@ -16,9 +16,15 @@ cabal-version:       >=1.10
 library
   hs-source-dirs:      src
   exposed-modules:     Lib
+                     , Horbits.Body
                      , Horbits.Data.Binding
                      , Horbits.Dimensional.Prelude
-  other-modules:       Horbits.Data.StateVar
+  other-modules:       Horbits.Body.Atmosphere
+                     , Horbits.Body.Body
+                     , Horbits.Body.Color
+                     , Horbits.Body.Data
+                     , Horbits.Body.Id
+                     , Horbits.Data.StateVar
                      , Horbits.Dimensional.Internal
   build-depends:       base >= 4.7 && < 5
                      , containers >= 0.5.7.1
