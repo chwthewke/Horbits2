@@ -11,7 +11,7 @@ import qualified Data.Fixed                              (mod')
 import           Linear                                  (Additive, Conjugate, Epsilon, Metric, Quaternion, R1, R2,
                                                          R3, V1, V2, V3)
 import qualified Linear                             as L
-import qualified Numeric.NumType.DK.Integers        as D (TypeInt(Pos2))
+import qualified Numeric.NumType.DK.Integers        as D (TypeInt(Neg1, Pos2, Zero))
 import           Numeric.Units.Dimensional               (Dimensionless, Quantity, Unit)
 import qualified Numeric.Units.Dimensional          as D
 import           Prelude                                 (Bool, Floating, Fractional, Functor, Num, Real, RealFloat,
@@ -31,6 +31,11 @@ import           Horbits.Dimensional.Internal
 
 infixl 6 ^+^, ^-^
 infixl 7 ^*~, ^*, *^, ^/
+
+-- Quantities
+
+type DSpecificAngularMomentum = 'Dim 'D.Pos2 'D.Zero 'D.Neg1 'D.Zero 'D.Zero 'D.Zero 'D.Zero
+type SpecificAngularMomentum = Quantity DSpecificAngularMomentum
 
 
 -- Extra numeric operators
@@ -61,7 +66,6 @@ v ^*~ u = quantity $ fmap (s P.*) v
 (^-^) :: (L.Additive f, Num a) => Quantity d (f a) -> Quantity d (f a) -> Quantity d (f a)
 (^-^) = liftQ2 (L.^-^)
 
--- TODO here: use the lawless Functor instance instead?
 (^*) :: (Num a, Functor f) => Quantity d (f a) -> Quantity d' a -> Quantity (d D.* d') (f a)
 (^*) = liftQ2 (L.^*)
 
