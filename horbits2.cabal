@@ -19,6 +19,7 @@ library
                      , Horbits.Body
                      , Horbits.Data.Binding
                      , Horbits.Dimensional.Prelude
+                     --, Horbits.Time
   other-modules:       Horbits.Body.Atmosphere
                      , Horbits.Body.Body
                      , Horbits.Body.Color
@@ -26,6 +27,8 @@ library
                      , Horbits.Body.Id
                      , Horbits.Data.StateVar
                      , Horbits.Dimensional.Internal
+                     --, Horbits.Time.KerbalClock
+                     , Horbits.Time.KerbalDateTime
   build-depends:       base >= 4.7 && < 5
                      , containers >= 0.5.7.1
                      , dimensional >= 1.0.1.2
