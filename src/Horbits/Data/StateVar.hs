@@ -1,8 +1,10 @@
+{-# LANGUAGE MultiParamTypeClasses #-}
+
 module Horbits.Data.StateVar where
 
-import Control.Monad.IO.Class (MonadIO, liftIO)
-import Control.Monad.Trans.State (StateT, runStateT)
-import Data.StateVar (HasGetter, HasSetter, get, ($=))
+import           Control.Monad.IO.Class    (MonadIO, liftIO)
+import           Control.Monad.Trans.State (StateT, runStateT)
+import           Data.StateVar             (HasGetter, HasSetter, get, ($=))
 
 withStateVar :: (HasGetter s a, HasSetter s a, MonadIO m) => s -> a -> m b -> m b
 withStateVar st a b = do

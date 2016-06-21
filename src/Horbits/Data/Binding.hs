@@ -27,7 +27,7 @@ import           Data.Maybe             (fromMaybe)
 import           Data.StateVar
 import           GHC.Conc
 
-import Horbits.Data.StateVar
+import           Horbits.Data.StateVar
 
 class (HasGetter v a, HasUpdate v a a) => Variable v a | v -> a where
     newVar :: MonadIO m => a -> m v
