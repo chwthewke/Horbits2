@@ -9,7 +9,6 @@ module Horbits.Time.KerbalDateTime(
     minutes, secondFraction, seconds, years, (.-.), (.-^), (.+^)) where
 
 import           Data.Fixed                          (mod')
-import           Numeric.Units.Dimensional.SIUnits   (hour, minute, second)
 import           Numeric.Units.Dimensional.UnitNames (UnitName, atom)
 import           Prelude                             (mod)
 

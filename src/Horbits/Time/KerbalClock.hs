@@ -5,8 +5,6 @@
 module Horbits.Time.KerbalClock(KerbalClock(..), readClock, stopClock, startClock) where
 
 import           Control.Lens                      hiding ((*~))
--- TODO include SIUnits in Horbits.Dimensional.Prelude, others?
-import           Numeric.Units.Dimensional.SIUnits (nano, second)
 import qualified Prelude                           as P
 import           System.Clock
 
@@ -26,7 +24,7 @@ data KerbalClock = StoppedClock KerbalInstant
 makePrisms ''KerbalClock
 
 runTimeFunction :: TimeFunction -> TimeSpec -> KerbalInstant
-runTimeFunction (TimeFunction base rate start) now = base .+^ KerbalTime (rate * (elapsed start now))
+runTimeFunction (TimeFunction base rate start) now = base .+^ KerbalTime (rate * elapsed start now)
 
 elapsed :: TimeSpec -> TimeSpec -> Time Double
 elapsed (TimeSpec s1 ns1) (TimeSpec s2 ns2) =
