@@ -1,5 +1,5 @@
 {-# LANGUAGE NoImplicitPrelude #-}
-{-# LANGUAGE TemplateHaskell #-}
+{-# LANGUAGE TemplateHaskell   #-}
 
 module Horbits.Body.Atmosphere(
     Atmosphere(Atmosphere), atmosphereHeight, atmosphereScaleHeight, atmosphericPressure) where
