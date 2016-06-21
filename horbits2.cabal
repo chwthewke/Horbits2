@@ -19,7 +19,7 @@ library
                      , Horbits.Body
                      , Horbits.Data.Binding
                      , Horbits.Dimensional.Prelude
-                     --, Horbits.Time
+                     , Horbits.Time
   other-modules:       Horbits.Body.Atmosphere
                      , Horbits.Body.Body
                      , Horbits.Body.Color
