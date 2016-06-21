@@ -1,31 +1,47 @@
-{-# LANGUAGE DataKinds #-}
-{-# LANGUAGE NoImplicitPrelude #-}
-{-# LANGUAGE Rank2Types #-}
-{-# LANGUAGE TypeOperators #-}
+{-# LANGUAGE DataKinds         #-}
 {-# LANGUAGE FlexibleInstances #-}
+{-# LANGUAGE NoImplicitPrelude #-}
+{-# LANGUAGE Rank2Types        #-}
+{-# LANGUAGE TypeOperators     #-}
 
 module Horbits.Dimensional.Prelude(module Horbits.Dimensional.Prelude, module X) where
 
 import           Control.Lens
-import qualified Data.Fixed                              (mod')
-import           Linear                                  (Additive, Conjugate, Epsilon, Metric, Quaternion, R1, R2,
-                                                         R3, V1, V2, V3)
-import qualified Linear                             as L
-import qualified Numeric.NumType.DK.Integers        as D (TypeInt(Neg1, Pos2, Zero))
-import           Numeric.Units.Dimensional               (Dimensionless, Quantity, Unit)
-import qualified Numeric.Units.Dimensional          as D
-import           Prelude                                 (Bool, Floating, Fractional, Functor, Num, Real, RealFloat,
-                                                         flip, fmap, ($), (.))
-import qualified Prelude                            as P
+import qualified Data.Fixed                        (mod')
+import           Linear                            (Additive, Conjugate,
+                                                    Epsilon, Metric, Quaternion,
+                                                    R1, R2, R3, V1, V2, V3)
+import qualified Linear                            as L
+import qualified Numeric.NumType.DK.Integers       as D (TypeInt (Neg1, Pos2, Zero))
+import           Numeric.Units.Dimensional         (Dimensionless, Quantity,
+                                                    Unit, (*), (/), (^))
+import qualified Numeric.Units.Dimensional         as D
+import           Prelude                           (Bool, Floating, Fractional,
+                                                    Functor, Num, Real,
+                                                    RealFloat, flip, fmap, ($),
+                                                    (.))
+import qualified Prelude                           as P
 
-import           Linear                             as X hiding (axisAngle, cross, distance, dot, nearZero, norm,
-                                                         normalize, project, qd, quadrance, rotate, signorm, zero,
-                                                         (*^), (^*), (^+^), (^-^), (^/), _x, _xy, _xz, _y, _yx, _yz,
-                                                         _z, _zx, _zy)
-import           Numeric.Units.Dimensional.Prelude  as X hiding (atan2, mod, subtract, zero, (^/))
-import           Prelude                            as X hiding (abs, acos, acosh, asin, asinh, atan, atan2, atanh,
-                                                         cos, cosh, exp, log, mod, negate, pi, sin, sinh, sqrt,
-                                                         subtract, sum, tan, tanh, (*), (**), (+), (-), (/), (^))
+import           Linear                            as X hiding (axisAngle,
+                                                         cross, distance, dot,
+                                                         nearZero, norm,
+                                                         normalize, project, qd,
+                                                         quadrance, rotate,
+                                                         signorm, zero, (*^),
+                                                         (^*), (^+^), (^-^),
+                                                         (^/), _x, _xy, _xz, _y,
+                                                         _yx, _yz, _z, _zx, _zy)
+import           Numeric.Units.Dimensional.Prelude as X hiding (atan2, mod,
+                                                         subtract, zero, (^/))
+import           Prelude                           as X hiding (abs, acos,
+                                                         acosh, asin, asinh,
+                                                         atan, atan2, atanh,
+                                                         cos, cosh, exp, log,
+                                                         mod, negate, pi, sin,
+                                                         sinh, sqrt, subtract,
+                                                         sum, tan, tanh, (*),
+                                                         (**), (+), (-), (/),
+                                                         (^))
 
 import           Horbits.Dimensional.Internal
 
@@ -66,13 +82,13 @@ v ^*~ u = quantity $ fmap (s P.*) v
 (^-^) :: (L.Additive f, Num a) => Quantity d (f a) -> Quantity d (f a) -> Quantity d (f a)
 (^-^) = liftQ2 (L.^-^)
 
-(^*) :: (Num a, Functor f) => Quantity d (f a) -> Quantity d' a -> Quantity (d D.* d') (f a)
+(^*) :: (Num a, Functor f) => Quantity d (f a) -> Quantity d' a -> Quantity (d * d') (f a)
 (^*) = liftQ2 (L.^*)
 
-(*^) :: (Num a, Functor f) => Quantity d a -> Quantity d' (f a) -> Quantity (d D.* d') (f a)
+(*^) :: (Num a, Functor f) => Quantity d a -> Quantity d' (f a) -> Quantity (d * d') (f a)
 (*^) = liftQ2 (L.*^)
 
-(^/) :: (Fractional a, Functor f) => Quantity d (f a) -> Quantity d' a -> Quantity (d D./ d') (f a)
+(^/) :: (Fractional a, Functor f) => Quantity d (f a) -> Quantity d' a -> Quantity (d / d') (f a)
 (^/) = liftQ2 (L.^/)
 
 -- Vector lenses
@@ -125,16 +141,16 @@ nearZeroOf u q = nearZero $ q D./ u
 
 -- Vector operations
 
-dot :: (Metric f, Num a) => Quantity d (f a) -> Quantity d' (f a) -> Quantity (d D.* d') a
+dot :: (Metric f, Num a) => Quantity d (f a) -> Quantity d' (f a) -> Quantity (d * d') a
 dot = liftQ2 L.dot
 
-cross :: (Num a) => Quantity d (V3 a) -> Quantity d' (V3 a) -> Quantity (d D.* d') (V3 a)
+cross :: (Num a) => Quantity d (V3 a) -> Quantity d' (V3 a) -> Quantity (d * d') (V3 a)
 cross = liftQ2 L.cross
 
-qd :: (Metric f, Num a) => Quantity d (f a) -> Quantity d (f a) -> Quantity (d D.^ 'D.Pos2) a
+qd :: (Metric f, Num a) => Quantity d (f a) -> Quantity d (f a) -> Quantity (d ^ 'D.Pos2) a
 qd = liftQ2 L.qd
 
-quadrance :: (Metric f, Num a) => Quantity d (f a) -> Quantity (d D.^ 'D.Pos2) a
+quadrance :: (Metric f, Num a) => Quantity d (f a) -> Quantity (d ^ 'D.Pos2) a
 quadrance = liftQ L.quadrance
 
 distance :: (Metric f, Floating a) => Quantity d (f a) -> Quantity d (f a) -> Quantity d a

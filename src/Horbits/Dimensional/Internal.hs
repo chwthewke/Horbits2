@@ -1,8 +1,9 @@
 module Horbits.Dimensional.Internal where
 
-import           Control.Lens (Iso, iso)
-import           Numeric.Units.Dimensional               (Quantity)
-import           Numeric.Units.Dimensional.Coercion      (Dimensional(Quantity), coerce)
+import           Control.Lens                       (Iso, iso)
+import           Numeric.Units.Dimensional          (Quantity)
+import           Numeric.Units.Dimensional.Coercion (Dimensional (Quantity),
+                                                     coerce)
 
 quantity :: a -> Quantity d a
 quantity = coerce
