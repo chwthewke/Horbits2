@@ -27,9 +27,10 @@ library
                      , Horbits.Body.Id
                      , Horbits.Data.StateVar
                      , Horbits.Dimensional.Internal
-                     --, Horbits.Time.KerbalClock
+                     , Horbits.Time.KerbalClock
                      , Horbits.Time.KerbalDateTime
   build-depends:       base >= 4.7 && < 5
+                     , clock >= 0.7.2
                      , containers >= 0.5.7.1
                      , dimensional >= 1.0.1.2
                      , gtk3 >= 0.14.5

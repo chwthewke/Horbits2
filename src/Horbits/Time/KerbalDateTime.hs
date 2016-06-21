@@ -1,8 +1,12 @@
-{-# LANGUAGE DataKinds         #-}
-{-# LANGUAGE KindSignatures    #-}
-{-# LANGUAGE NoImplicitPrelude #-}
+{-# LANGUAGE DataKinds          #-}
+{-# LANGUAGE ExplicitNamespaces #-}
+{-# LANGUAGE KindSignatures     #-}
+{-# LANGUAGE NoImplicitPrelude  #-}
 
-module Horbits.Time.KerbalDateTime where
+module Horbits.Time.KerbalDateTime(
+    KerbalTime(KerbalTime), type KerbalDuration, type KerbalInstant,
+    days, hours, kday, kerbalDuration, kerbalInstant, kyear, hours,
+    minutes, secondFraction, seconds, years, (.-.), (.-^), (.+^)) where
 
 import           Data.Fixed                          (mod')
 import           Numeric.Units.Dimensional.SIUnits   (hour, minute, second)
@@ -30,7 +34,7 @@ kyear = mkUnitZ nKYear 426 kday
 data Temporal = Duration | Instant
 
 newtype KerbalTime (k :: Temporal) (a :: *) =
-    KerbalTime { time :: Time a }
+    KerbalTime { time :: Time a } deriving (Show, Eq)
 
 type KerbalDuration' = KerbalTime 'Duration
 
