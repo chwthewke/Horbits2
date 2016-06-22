@@ -76,7 +76,7 @@ orbitPeriapsisAltitude = subtractingBodyRadius orbitPeriapsis
 subtractingBodyRadius :: OrbitClass t => Lens' t (Length Double) -> Lens' t (Length Double)
 subtractingBodyRadius l f orb =
     l (fmap (+ r) . f . subtract r) orb
-  where r = orb ^. orbitBody . bodyRadius
+  where r = orb ^. orbitParent . bodyRadius
 
 -- Semi-minor Axis
 
@@ -122,4 +122,4 @@ bodySolarDay = folding $ do
         orbit <- orbitM
         return $ siderealDay / (_1 - siderealDay / orbit ^. orbitPeriod)
   where
-    asKerbolOrbit = mfilter ((== Sun) <$> view orbitBodyId)
+    asKerbolOrbit = mfilter ((== Sun) <$> view orbitParentBodyId)

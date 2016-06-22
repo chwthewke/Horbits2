@@ -4,7 +4,7 @@
 module Horbits.Orbit.Class
     (Orbit(Orbit), OrbitClass(..),
     vectorOrbit,
-    orbitBody, orbitMu,
+    orbitParent, orbitMu,
     orbitAngularMomentumVector, orbitAngularMomentum, orbitEccentricityVector)
   where
 
@@ -15,9 +15,7 @@ import           Horbits.Body
 import           Horbits.Dimensional.Prelude
 -- Definitions and classes
 
--- TODO name orbitBodyId differently (parent? focusBody?)
-
-data Orbit = Orbit { _orbitBodyId                        :: BodyId
+data Orbit = Orbit { _orbitParentBodyId                  :: BodyId
                    , _orbitSemiMajorAxis                 :: Length Double
                    , _orbitEccentricity                  :: Dimensionless Double
                    , _orbitRightAscensionOfAscendingNode :: Dimensionless Double
@@ -26,7 +24,7 @@ data Orbit = Orbit { _orbitBodyId                        :: BodyId
                    , _orbitMeanAnomalyAtEpoch            :: Dimensionless Double
                    } deriving (Show, Eq)
 
-makeLensesWith (classyRules & lensClass .~ const (Just (mkName "OrbitClass", mkName "toOrbit")))  ''Orbit
+makeLensesWith (classyRules & lensClass .~ const (Just (mkName "OrbitClass", mkName "toOrbit"))) ''Orbit
 
 -- Class equivalence
 
@@ -40,7 +38,7 @@ _orbitRotation = do
 _angularMomentum :: OrbitClass t => t -> SpecificAngularMomentum Double
 _angularMomentum = do
     a <- view orbitSemiMajorAxis
-    mu <- view (orbitBodyId . fromBodyId . bodyGravitationalParam)
+    mu <- view orbitMu
     e <- view orbitEccentricity
     return $ sqrt $ a * mu * (_1 - e ^ pos2)
 
@@ -55,24 +53,6 @@ _angularMomentumVector = do
     h <- _angularMomentum
     return $ rotate rotation $ v3 _0 _0 h
 
--- NOTE we would try to make all of these lenses, but really, why?
-
---_setAngularMomentum :: OrbitClass t => SpecificAngularMomentum Double -> t -> t
---_setAngularMomentum h orbit = orbit & orbitSemiMajorAxis .~ h ^ pos2 / (mu * (_1 - e ^ pos2))
---  where
---    mu = orbit ^. orbitBodyId . fromBodyId . bodyGravitationalParam
---    e = orbit ^. orbitEccentricity
-
-
---_setAngularMomentumVector :: OrbitClass t => SpecificAngularMomentum (V3 Double) -> t -> t
---_setAngularMomentumVector h orbit = orbit & _setAngularMomentum (norm h)
---                                          & setRaan
---                                          & setIncl
---                                          & setArgPe
---  where
---    setRaan = undefined
---    setIncl = undefined
---    setArgPe = undefined
 
 orbitAngularMomentumVector :: OrbitClass t => Getter t (SpecificAngularMomentum (V3 Double))
 orbitAngularMomentumVector = to _angularMomentumVector
@@ -90,13 +70,13 @@ orbitEccentricityVector = to _eccentricityVector
 -- Properties
 
 
-orbitBody :: OrbitClass t => Getter t Body
-orbitBody = orbitBodyId . fromBodyId
+orbitParent :: OrbitClass t => Getter t Body
+orbitParent = orbitParentBodyId . fromBodyId
 
 -- MU
 
 orbitMu :: OrbitClass t => Getter t (GravitationalParameter Double)
-orbitMu = orbitBody . bodyGravitationalParam
+orbitMu = orbitParent . bodyGravitationalParam
 
 -- Define orbit by its angular momentum and eccentricity vectors
 

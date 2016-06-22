@@ -12,4 +12,4 @@ import           Horbits.Orbit.Properties as X
 import           Horbits.Orbit.Velocity   as X
 
 parentBodyId :: Fold BodyId BodyId
-parentBodyId = bodyOrbit . orbitBodyId
+parentBodyId = bodyOrbit . orbitParentBodyId

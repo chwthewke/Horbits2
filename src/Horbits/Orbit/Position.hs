@@ -56,7 +56,7 @@ _trueToFromEccentric :: Dimensionless Double -> Dimensionless Double -> Dimensio
 _trueToFromEccentric e a = _2 * atan2 (sqrt (_1 + e) * sin (a / _2)) (sqrt (_1 - e) * cos (a / _2))
 
 instantToMeanAnomaly :: OrbitClass t => t -> KerbalInstant -> Dimensionless Double
-instantToMeanAnomaly orbit instant = (ma0 + (instant ^. isoInstant / p * tau)) `mod` tau
+instantToMeanAnomaly orbit instant = (ma0 + (kerbalInstant instant / p * tau)) `mod'` tau
   where
     ma0 = orbit ^. orbitMeanAnomalyAtEpoch
     p = orbit ^. orbitPeriod
@@ -71,10 +71,9 @@ trueAnomalyToPositionVector = flip $ \ta -> do
     (ux, uy) <- orbitSemiAxes
     return $ r *^ (cos ta *^ ux ^+^ sin ta *^ uy)
 
-
 instantFromMeanAnomalyAndRevs :: OrbitClass t => t -> Dimensionless Double -> Integer -> KerbalInstant
 instantFromMeanAnomalyAndRevs orbit ma n =
-    (((fromIntegral n *. tau) + ma) * orbit ^. orbitPeriod) ^. from isoInstant
+    KerbalTime $ (fromIntegral n *~ one * tau + ma) * orbit ^. orbitPeriod
 
 orbitPositionFromInstant :: OrbitClass t => t -> KerbalInstant -> OrbitPosition t
 orbitPositionFromInstant orbit instant =
@@ -122,5 +121,5 @@ orbitPositionFromTrueAnomaly orbit ta n = OrbitPosition orbit instant ma ea ta p
 bodyPosition :: KerbalInstant -> BodyId -> Length (V3 Double)
 bodyPosition t b = maybe zero orbitPosition (b ^? bodyOrbit)
   where
-    orbitPosition o = positionVector (orbitPositionFromInstant o t) ^+^ bodyPosition t (o ^. orbitBody . bodyId)
+    orbitPosition o = positionVector (orbitPositionFromInstant o t) ^+^ bodyPosition t (o ^. orbitParentBodyId)
 
