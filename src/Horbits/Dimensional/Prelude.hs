@@ -31,8 +31,8 @@ import           Linear                            as X hiding (axisAngle,
                                                          (^*), (^+^), (^-^),
                                                          (^/), _x, _xy, _xz, _y,
                                                          _yx, _yz, _z, _zx, _zy)
-import           Numeric.Units.Dimensional.Prelude as X hiding (atan2, mod,
-                                                         subtract, zero, (^/))
+import           Numeric.Units.Dimensional.Prelude as X hiding (subtract, zero,
+                                                         (^/))
 import           Prelude                           as X hiding (abs, acos,
                                                          acosh, asin, asinh,
                                                          atan, atan2, atanh,
