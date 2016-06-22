@@ -76,6 +76,10 @@ zero = quantity L.zero
 v ^*~ u = quantity $ fmap (s P.*) v
   where s = unQuantity $ 1 D.*~ u
 
+(^/~) :: (Functor f, Fractional a) => Quantity d (f a) -> Unit m d a -> f a
+v ^/~ u =  fmap (P./ s) . unQuantity $ v
+  where s = unQuantity $ 1 D.*~ u
+
 (^+^) :: (L.Additive f, Num a) => Quantity d (f a) -> Quantity d (f a) -> Quantity d (f a)
 (^+^) = liftQ2 (L.^+^)
 
