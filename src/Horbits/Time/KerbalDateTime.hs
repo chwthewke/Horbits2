@@ -5,7 +5,7 @@
 
 module Horbits.Time.KerbalDateTime(
     KerbalTime(KerbalTime), type KerbalDuration, type KerbalInstant,
-    days, hours, kday, kerbalDuration, kerbalInstant, kyear, hours,
+    days, hours, kday, kerbalDuration, kerbalInstant, kyear,
     minutes, secondFraction, seconds, years, (.-.), (.-^), (.+^)) where
 
 import           Data.Fixed                          (mod')
