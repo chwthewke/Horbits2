@@ -20,6 +20,7 @@ library
                      , Horbits.Data.Binding
                      , Horbits.Dimensional.Prelude
                      , Horbits.Time
+                     , Horbits.Orbit
   other-modules:       Horbits.Body.Atmosphere
                      , Horbits.Body.Body
                      , Horbits.Body.Color
@@ -38,6 +39,7 @@ library
                      , linear >= 1.20.5
                      , numtype-dk >= 0.5.0.1
                      , StateVar >= 1.1.0.4
+                     , template-haskell >= 2.11.0
                      , transformers >= 0.5.2.0
   default-language:    Haskell2010
 
