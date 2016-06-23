@@ -19,6 +19,7 @@ library
                      , Horbits.Body
                      , Horbits.Data.Binding
                      , Horbits.Dimensional.Prelude
+                     , Horbits.SolarSystem
                      , Horbits.Time
                      , Horbits.Orbit
   other-modules:       Horbits.Body.Atmosphere
