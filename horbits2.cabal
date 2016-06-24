@@ -29,6 +29,12 @@ library
                      , Horbits.Body.Id
                      , Horbits.Data.StateVar
                      , Horbits.Dimensional.Internal
+                     , Horbits.Orbit.Class
+                     , Horbits.Orbit.Data
+                     , Horbits.Orbit.Geometry
+                     , Horbits.Orbit.Position
+                     , Horbits.Orbit.Properties
+                     , Horbits.Orbit.Velocity
                      , Horbits.Time.KerbalClock
                      , Horbits.Time.KerbalDateTime
   build-depends:       base >= 4.7 && < 5
