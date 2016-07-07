@@ -64,11 +64,22 @@ test-suite horbits2-test
   hs-source-dirs:      test
   main-is:             Spec.hs
   other-modules:       Horbits.Dimensional.PreludeSpec
+                     , Horbits.Matchers
+                     , Horbits.MatchersSpec
+                     , Horbits.Matchers.Core
+                     , Horbits.Orbit.Gen
+                     , Horbits.Orbit.GenSpec
+                     , Horbits.Orbit.Sample
   build-depends:       base
                      , horbits2
+                     , contravariant
                      , dimensional >= 1.0.1.2
                      , hspec
+                     , hspec-expectations
+                     , HUnit
+                     , lens >= 4.14
                      , mtl >= 2.2.1
+                     , random >= 1.1
                      , QuickCheck
   ghc-options:         -threaded -rtsopts -with-rtsopts=-N
   default-language:    Haskell2010

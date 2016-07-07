@@ -50,6 +50,7 @@ infixl 7 ^*~, ^*, *^, ^/
 
 -- Quantities
 
+-- TODO rename? see standard quantity names
 type DSpecificAngularMomentum = 'Dim 'D.Pos2 'D.Zero 'D.Neg1 'D.Zero 'D.Zero 'D.Zero 'D.Zero
 type SpecificAngularMomentum = Quantity DSpecificAngularMomentum
 

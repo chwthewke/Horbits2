@@ -15,6 +15,8 @@ import           Horbits.Body
 import           Horbits.Dimensional.Prelude
 -- Definitions and classes
 
+-- TODO add vector definition to record ?
+
 data Orbit = Orbit { _orbitParentBodyId                  :: BodyId
                    , _orbitSemiMajorAxis                 :: Length Double
                    , _orbitEccentricity                  :: Dimensionless Double
