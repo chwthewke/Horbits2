@@ -72,7 +72,6 @@ test-suite horbits2-test
                      , Horbits.Orbit.Sample
   build-depends:       base
                      , horbits2
-                     , contravariant
                      , dimensional >= 1.0.1.2
                      , hspec
                      , hspec-expectations
