@@ -1,12 +1,12 @@
-{-# LANGUAGE DeriveFunctor        #-}
 {-# LANGUAGE ExplicitNamespaces   #-}
 {-# LANGUAGE FlexibleInstances    #-}
 {-# LANGUAGE Rank2Types           #-}
+{-# LANGUAGE TupleSections        #-}
 {-# LANGUAGE TypeSynonymInstances #-}
 
 module Horbits.Matchers.Core(
-    MatchResult(..), type Matcher1, type Matcher, verifyMatch, describeMismatch, describeMatch
-  , matcher, should) where
+    MatchResult(..), type Matcher1, type Matcher, verifyMatch, describeMismatch
+  , defaultMatcher, should, equal, not', (<&&>), (<||>), (>&&<), (>||<)) where
 
 import           Control.Applicative
 import           Control.Arrow           hiding ((|||))
@@ -19,9 +19,9 @@ import           Test.HUnit.Lang         (Result (..), performTestCase)
 
 -- Data
 
-data MatchResult a = MatchResult { matchResult :: Maybe a
-                                 , mismatch    :: [String]
-                                 , match       :: [String]
+data MatchResult a = MatchResult { matchResult         :: Maybe a
+                                 , description         :: String
+                                 , mismatchDescription :: String
                                  } deriving (Eq, Show)
 
 instance Functor MatchResult where
@@ -35,13 +35,10 @@ instance Monad MatchResult where
     return a = MatchResult (Just a) [] []
     ra >>= f = maybe failed (combineResult . f) (matchResult ra)
       where
-        failed = MatchResult Nothing (mismatch ra) (match ra)
+        failed = MatchResult Nothing (description ra) (mismatchDescription ra)
         combineResult rb =
-            MatchResult
-                (matchResult rb)
-                (mismatch rb)
-                (match ra ++ match rb)
-
+            let combinedDescription = description ra ++ ", such that " ++ description rb in
+            MatchResult (matchResult rb) combinedDescription combinedDescription
 
 type Matcher1 = Kleisli MatchResult
 
@@ -50,62 +47,78 @@ type Matcher a = Matcher1 a ()
 verifyMatch :: Matcher1 a b -> a -> Maybe b
 verifyMatch = fmap matchResult . runKleisli
 
-describe :: (a -> [String]) -> a -> String
-describe f = intercalate ", " . f
 
-describeMismatch :: Matcher1 a b -> a -> String
-describeMismatch = fmap (describe mismatch) . runKleisli
-
-describeMatch :: Matcher1 a b -> a -> String
-describeMatch = fmap (describe match) . runKleisli
-
-matcher :: (a -> Maybe b) -> (a -> String) -> (a -> String) -> Matcher1 a b
-matcher verify descMismatch descMatch =
-    Kleisli $ liftA3 MatchResult verify (pure . descMismatch) (pure . descMatch)
+defaultMatcher :: (a -> Maybe b) -> String -> Matcher1 a b
+defaultMatcher verify descr =
+    Kleisli $ \a -> MatchResult (verify a) descr descr
 
 -- Run
 
-toExpectation :: MatchResult a -> Expectation
-toExpectation r = maybe (assertFailure . describe mismatch $ r) (void . return) (matchResult r)
+describeMismatch :: Show a => a -> MatchResult b -> String
+describeMismatch a (MatchResult _ _ d) = "Expected: " ++ d ++ ", got: " ++ show a
 
-should :: a -> Matcher a -> Expectation
-should a m = toExpectation $ runKleisli m a
 
--- meta expectations
+toExpectation :: Show a => a -> MatchResult b -> Expectation
+toExpectation a r = maybe
+    (assertFailure $ describeMismatch a r)
+    (void . return)
+    (matchResult r)
 
-shouldSucceed :: Expectation -> () -> Expectation
-shouldSucceed test _ = do
-    r <- performTestCase test
-    r `should` equal Success
+should :: Show a => a -> Matcher a -> Expectation
+should a m = toExpectation a $ runKleisli m a
+
 
 -- Combinators
 
 not' :: Matcher1 a b -> Matcher a
-not' (Kleisli m) = Kleisli $ \a -> MatchResult
-    (matchResult (m a) ^? _Nothing)
-    (match $ m a)
-    (mismatch $ m a)
+not' (Kleisli m) = Kleisli $ \a ->
+    MatchResult
+        (matchResult (m a) ^? _Nothing)
+        ("not " ++ description (m a))
+        ("not " ++ mismatchDescription (m a))
 
-(|||) :: Matcher1 a b -> Matcher1 a b' -> Matcher1 a (Either b b')
-(|||) = undefined
 
-(<&&&>) :: Matcher a -> Matcher a -> Matcher a
-m <&&&> m' = void $ m &&& m'
+(<&&>) :: Matcher1 a b -> Matcher1 a b' -> Matcher1 a (b, b')
+(<&&>) m m' = Kleisli $ \a ->
+    let MatchResult r d mis = runKleisli m a in
+    let MatchResult r' d' mis' = runKleisli m' a in
+    let desc = d ++ " and " ++ d' in
+    maybe
+        (MatchResult Nothing desc mis)
+        (\res -> MatchResult (fmap (res,) r') desc (mis ++ ", " ++ mis'))
+        r
 
-(<|||>) :: Matcher a -> Matcher a -> Matcher a
-m <|||> m' = void $ m ||| m'
+(<||>) :: Matcher1 a b -> Matcher1 a b' -> Matcher1 a (Either b b')
+(<||>) m m' = Kleisli $ \a ->
+    let MatchResult r d mis = runKleisli m a in
+    let MatchResult r' d' mis' = runKleisli m' a in
+    let desc = d ++ " or " ++ d' in
+    maybe
+        (MatchResult (fmap Right r') desc (mis ++ ", " ++ mis'))
+        (\res -> MatchResult (Just $ Left res) desc mis)
+        r
+
+asMatcher :: Matcher1 a b -> Matcher a
+asMatcher m = m & _Wrapped %~ fmap void
+
+
+(>&&<) :: Matcher a -> Matcher a -> Matcher a
+m >&&< m' = asMatcher $ m <&&> m'
+
+(>||<) :: Matcher a -> Matcher a -> Matcher a
+m >||< m' = asMatcher $ m <||> m'
 
 
 -- Lib
 
 equal :: (Show a, Eq a) => a -> Matcher a
-equal expected = matcher (\a -> when (a == expected) $ return ()) undefined undefined
+equal expected =
+    defaultMatcher
+        (\a -> if (a == expected) then Just () else Nothing)
+        (show expected)
 
 isA :: Show a => String -> (a -> Maybe b) -> Matcher1 a b
-isA name f = matcher
-    f
-    (\a -> show a ++ " is not a " ++ name)
-    (\a -> show a ++ " is a " ++ name)
+isA name f = defaultMatcher f ("a " ++ name)
 
 --
 -- -- matchTestResultWith :: Matcher String -> Matcher Result
