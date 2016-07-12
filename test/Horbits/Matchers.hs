@@ -1,3 +1,4 @@
 module Horbits.Matchers(module X) where
 
-import           Horbits.Matchers.Core as X
+import           Horbits.Matchers.Lib as X
+import           Horbits.Matchers.Matcher as X

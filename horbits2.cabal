@@ -66,7 +66,8 @@ test-suite horbits2-test
   other-modules:       Horbits.Dimensional.PreludeSpec
                      , Horbits.Matchers
                      , Horbits.MatchersSpec
-                     , Horbits.Matchers.Core
+                     , Horbits.Matchers.Lib
+                     , Horbits.Matchers.Matcher
                      , Horbits.Orbit.Gen
                      , Horbits.Orbit.GenSpec
                      , Horbits.Orbit.Sample

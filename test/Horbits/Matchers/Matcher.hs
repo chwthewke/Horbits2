@@ -4,9 +4,9 @@
 {-# LANGUAGE TupleSections        #-}
 {-# LANGUAGE TypeSynonymInstances #-}
 
-module Horbits.Matchers.Core(
+module Horbits.Matchers.Matcher(
     MatchResult(..), type Matcher1, type Matcher, verifyMatch, describeMismatch
-  , defaultMatcher, should, equal, not', (<&&>), (<||>), (>&&<), (>||<)) where
+  , defaultMatcher, propMatcher, should, not', (<&&>), (<||>), (>&&<), (>||<)) where
 
 import           Control.Applicative
 import           Control.Arrow           hiding ((|||))
@@ -51,6 +51,13 @@ verifyMatch = fmap matchResult . runKleisli
 defaultMatcher :: (a -> Maybe b) -> String -> Matcher1 a b
 defaultMatcher verify descr =
     Kleisli $ \a -> MatchResult (verify a) descr descr
+
+propMatcher :: (a -> Bool) -> String -> Matcher a
+propMatcher prop =
+    defaultMatcher (toMatch . prop)
+  where
+    toMatch True  = Just ()
+    toMatch False = Nothing
 
 -- Run
 
@@ -114,16 +121,10 @@ m >||< m' = asMatcher $ m <||> m'
 equal :: (Show a, Eq a) => a -> Matcher a
 equal expected =
     defaultMatcher
-        (\a -> if (a == expected) then Just () else Nothing)
+        (\a -> if a == expected then Just () else Nothing)
         (show expected)
 
 isA :: Show a => String -> (a -> Maybe b) -> Matcher1 a b
 isA name f = defaultMatcher f ("a " ++ name)
 
---
--- -- matchTestResultWith :: Matcher String -> Matcher Result
--- -- matchTestResultWith
--- --
--- -- failWith :: Matcher String -> IO (Matcher Expectation)
--- -- failWith messageMatcher = Matcher v d d' >$$< evalTest
--- --   where evalTest t =
+
